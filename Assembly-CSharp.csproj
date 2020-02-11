@@ -64,8 +64,12 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\AddPostProcessSingular.cs" />
     <Compile Include="Assets\Scripts\Blink.cs" />
+    <Compile Include="Assets\Scripts\CameraMove.cs" />
+    <Compile Include="Assets\Scripts\MirrorPosition.cs" />
     <Compile Include="Assets\Scripts\PlayerMove.cs" />
+    <Compile Include="Assets\Scripts\PlayerOverworldInfo.cs" />
     <Compile Include="Assets\Scripts\ShadowMove.cs" />
+    <Compile Include="Assets\Scripts\SwapUI.cs" />
     <None Include="Assets\Scripts\Shaders\psx-unlit.shader" />
     <None Include="Assets\Scripts\Shaders\psx-trasparent-unlit.shader" />
     <None Include="Assets\Scripts\Shaders\ToonShader.shader" />

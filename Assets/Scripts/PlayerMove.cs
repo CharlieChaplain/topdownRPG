@@ -7,10 +7,14 @@ public class PlayerMove : MonoBehaviour
     public float moveSpeed = 1f;
     public float jumpForce = 10f;
 
+    private bool leader; //imported from PlayerOverworldInfo, which is attached to the specific player model
+    public GameObject otherPlayer; //the other player in the duo
+    public Transform followTarget; //the target to seek when this player is the follower
+
     private CharacterController controller;
 
     public GameObject debugText;
-    public Animator anim;
+    private Animator anim;
 
     public bool grounded;
 
@@ -34,11 +38,33 @@ public class PlayerMove : MonoBehaviour
 
     private void Move()
     {
-        float horz = Input.GetAxis("Horizontal");
-        float vert = Input.GetAxis("Vertical");
+        float horz = 0;
+        float vert = 0;
 
-        
+        //if they're the leader, determine movement via input. Elsewise, just follow the leader.
+        if (leader)
+        {
+            horz = Input.GetAxis("Horizontal");
+            vert = Input.GetAxis("Vertical");
+        } else
+        {
+            //determines if the follower is far enough away to need to move closer. (only takes into account horizontal distance apart)
+            Vector3 thisP = new Vector3(transform.position.x, 0, transform.position.z);                             //discards y value of this players pos
+            Vector3 otherP = new Vector3(otherPlayer.transform.position.x, 0, otherPlayer.transform.position.z);    //discards y value of other players pos
+            Vector3 targetP = new Vector3(followTarget.position.x, 0, followTarget.position.z);                     //discards y value of followtarget pos
 
+            if (Vector3.Distance(thisP, otherP) >= 5f)
+            {
+                //finds delta distance
+                Vector3 delta = otherP - thisP;
+                Vector3 desiredDir = targetP - thisP; //the direction towards the followTarget
+
+                Vector3 combinedVector = ((desiredDir * .75f) + (delta * .25f)); //combines the vectors so it tends towards the followtarget but partially follows the leader directly
+
+                horz = Mathf.Clamp(combinedVector.x, -1f, 1);
+                vert = Mathf.Clamp(combinedVector.z, -1f, 1);
+            }
+        }
 
         //Determining forward, only uses 8 directions
         //N
@@ -74,8 +100,12 @@ public class PlayerMove : MonoBehaviour
             vert *= 1.5f;
 
         //Jump stuff
-        float up = 0;
-        if (Input.GetAxis("Jump") > 0 && grounded && !jumpPressed)
+        if (leader && Input.GetAxis("Action A") > 0 && grounded && !jumpPressed)
+        {
+            verticalVelocity += jumpForce;
+            jumpPressed = true;
+            grounded = false;
+        } else if (!leader && Input.GetAxis("Action B") > 0 && grounded && !jumpPressed)
         {
             verticalVelocity += jumpForce;
             jumpPressed = true;
@@ -118,5 +148,16 @@ public class PlayerMove : MonoBehaviour
         {
             jumpPressed = false;
         }
+    }
+
+    //setter for this script's leader variable
+    public void SetLeader(bool _leader)
+    {
+        leader = _leader;
+    }
+    //setter for this script's animator variable. Will change to the correct animator according to who is the leader
+    public void SetAnim(Animator _anim)
+    {
+        anim = _anim;
     }
 }
